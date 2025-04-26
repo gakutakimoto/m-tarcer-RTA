@@ -25,7 +25,7 @@ export async function GET(
   // —② BigQuery クライアントを初期化—
   const bq = new BigQuery({
     projectId:   process.env.BQ_PROJECT_ID,
-    credentials: JSON.parse(process.env.BQ_KEY_JSON!)
+    credentials: JSON.parse(process.env.BQ_KEY_JSON || '{}')
   });
 
   // —③ クエリを実行—
