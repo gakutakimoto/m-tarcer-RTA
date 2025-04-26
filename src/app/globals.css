@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* モバイルのデフォルトフォントサイズを小さく設定 */
+html {
+  font-size: 14px; /* モバイル用のデフォルトフォントサイズ */
+}
+
+body {
+  padding: 8px; /* モバイルで余白を少なくする */
+}
+
+/* モバイルデバイスに対する調整 */
+@media (max-width: 640px) {
+  .metric-card {
+    font-size: 0.75rem; /* カード内のフォントサイズをさらに小さく */
+  }
+  .grid-cols-1 {
+    min-width: 80px; /* カードの最小幅を狭くする */
+  }
+}
+
+/* カード間の隙間の調整 */
+.card {
+  padding-left: 0.5rem;  /* px-4 と同じ */
+  padding-right: 0.5rem; /* px-4 と同じ */
+}
+
+.grid-cols-1 {
+  margin-left: 4px;  /* カードの隙間 */
+  margin-right: 4px; /* カードの隙間 */
+}
+
+/* モバイル用のカードのパディング調整 */
+@media (max-width: 640px) {
+  .card {
+    padding-left: 0.5rem; /* モバイルで少し狭める */
+    padding-right: 0.5rem; /* モバイルで少し狭める */
+  }
+}

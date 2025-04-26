@@ -1,0 +1,102 @@
+{
+  "0": [
+    { "feature": "addressHandFirst", "importance": 0.179650988, "median": -20.781229 },
+    { "feature": "addressLieAngle", "importance": 0.15907266, "median": 40.090389 },
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.1538128, "median": 20.124808 },
+    { "feature": "impactGripSpeed", "importance": 0.11182034, "median": 6.41823575 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.106639494, "median": -341.34146 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.103795294, "median": -7.4818955 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.097771537, "median": 7.445408117 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.087436888, "median": -1250.2439 }
+  ],
+  "1": [
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.228847232, "median": 12.915949 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.140531668, "median": -425.60977 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.139431936, "median": -1557.683 },
+    { "feature": "impactGripSpeed", "importance": 0.112013747, "median": 5.934476107 },
+    { "feature": "addressHandFirst", "importance": 0.100545712, "median": -6.03749925 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.099565323, "median": 16.1323015 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.089710746, "median": -22.02704236 },
+    { "feature": "addressLieAngle", "importance": 0.089353636, "median": 41.5502585 }
+  ],
+  "2": [
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.159912111, "median": -8.695305825 },
+    { "feature": "addressLieAngle", "importance": 0.155567049, "median": 42.12199735 },
+    { "feature": "addressHandFirst", "importance": 0.148064608, "median": -9.461936946 },
+    { "feature": "impactGripSpeed", "importance": 0.116887248, "median": 7.143940212 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.112112953, "median": -54.70157234 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.109534677, "median": -316.2804865 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.100661842, "median": 6.7610645 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.097259512, "median": -1152.256145 }
+  ],
+  "3": [
+    { "feature": "downSwingShaftRotationMin", "importance": 0.217617477, "median": -1234.1464 },
+    { "feature": "impactGripSpeed", "importance": 0.18217666, "median": 5.28113699 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.124487609, "median": -300.9756165 },
+    { "feature": "addressLieAngle", "importance": 0.117011119, "median": 41.861073 },
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.099248025, "median": -9.019277 },
+    { "feature": "addressHandFirst", "importance": 0.095178794, "median": -4.715614319 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.092046118, "median": -68.91922 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.072234198, "median": -33.777336 }
+  ],
+  "4": [
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.176840164, "median": -8.3524475 },
+    { "feature": "addressHandFirst", "importance": 0.174934342, "median": -1.50839655 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.147648724, "median": 27.1743895 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.116628265, "median": -419.14636 },
+    { "feature": "impactGripSpeed", "importance": 0.110792753, "median": 5.919290563 },
+    { "feature": "addressLieAngle", "importance": 0.097091101, "median": 41.425346 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.093400199, "median": -1086.097543 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.082664452, "median": -26.527907 }
+  ],
+  "5": [
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.191397836, "median": 9.491820577 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.172154525, "median": -0.74227615 },
+    { "feature": "addressLieAngle", "importance": 0.133384145, "median": 52.8863965 },
+    { "feature": "addressHandFirst", "importance": 0.132949248, "median": -19.67238642 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.108815354, "median": -457.256105 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.09915766, "median": -1446.097595 },
+    { "feature": "impactGripSpeed", "importance": 0.083426312, "median": 5.9760955 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.07871492, "median": -19.561001 }
+  ],
+  "6": [
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.28505553, "median": 1.370773 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.140030085, "median": -1966.463501 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.127656205, "median": -499.51221 },
+    { "feature": "addressHandFirst", "importance": 0.10394336, "median": -10.75952862 },
+    { "feature": "addressLieAngle", "importance": 0.089835146, "median": 51.92843804 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.088291889, "median": -14.642448 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.083959758, "median": -2.3449788 },
+    { "feature": "impactGripSpeed", "importance": 0.081228027, "median": 5.892360211 }
+  ],
+  "7": [
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.273239296, "median": -18.04270172 },
+    { "feature": "addressHandFirst", "importance": 0.136842278, "median": -11.339717 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.12256427, "median": -428.0488 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.111677433, "median": -1368.2927 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.095090654, "median": 7.9894867 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.092399287, "median": -41.15656 },
+    { "feature": "addressLieAngle", "importance": 0.085676151, "median": 53.4752 },
+    { "feature": "impactGripSpeed", "importance": 0.082510631, "median": 6.442550182 }
+  ],
+  "8": [
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.211781535, "median": -20.4068185 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.143483325, "median": -1205.30485 },
+    { "feature": "addressHandFirst", "importance": 0.125755493, "median": -9.339655522 },
+    { "feature": "impactGripSpeed", "importance": 0.12158142, "median": 5.0947772 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.121204845, "median": -363.84147 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.100003671, "median": -73.85257 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.090410278, "median": -35.25356 },
+    { "feature": "addressLieAngle", "importance": 0.085779434, "median": 53.23946754 }
+  ],
+  "9": [
+    { "feature": "addressHandFirst", "importance": 0.227972019, "median": -7.4339775 },
+    { "feature": "halfwaydownFaceAngleToVertical", "importance": 0.159166647, "median": -23.79157721 },
+    { "feature": "topFaceAngleToHorizontal", "importance": 0.130703349, "median": 56.30775281 },
+    { "feature": "downSwingShaftRotationMax", "importance": 0.122485296, "median": -546.3415 },
+    { "feature": "impactGripSpeed", "importance": 0.106358629, "median": 5.86913705 },
+    { "feature": "downSwingShaftRotationMin", "importance": 0.09478616, "median": -1022.012215 },
+    { "feature": "addressLieAngle", "importance": 0.081710745, "median": 54.039536 },
+    { "feature": "halfwaybackFaceAngleToVertical", "importance": 0.076817155, "median": -27.9738595 }
+  ]
+}
