@@ -1,5 +1,0 @@
-{
-  "/api/generate-advice/route": "app/api/generate-advice/route.js",
-  "/api/text-to-speech/route": "app/api/text-to-speech/route.js",
-  "/practice/page": "app/practice/page.js"
-}
