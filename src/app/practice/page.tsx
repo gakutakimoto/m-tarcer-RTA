@@ -9,6 +9,8 @@ import clusterSuccessMedians from "@/data/cluster_success_medians.json";
 import featureImportanceData from "@/data/featureImportance.json";
 import clustersData from "@/data/clusters.json";
 
+
+
 // 簡単アドバイスを生成する関数
 const fetchSimpleAdvice = async (swingResult: SwingDataFromApi) => {
   try {
@@ -29,6 +31,10 @@ const fetchSimpleAdvice = async (swingResult: SwingDataFromApi) => {
     return '(アドバイス未生成)';
   }
 };
+
+
+
+      
 
 
 // --- 型定義 ---
@@ -66,31 +72,67 @@ export default function PracticePage() {
   const [isTtsPlaying, setIsTtsPlaying] = useState(false);
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
 
+    // 🟢 まず unlockAudio
+    const unlockAudio = async (): Promise<boolean> => {
+      if (isAudioUnlocked || typeof window === 'undefined') {
+        return true;
+      }
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const buffer = audioContext.createBuffer(1, 1, 22050);
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start(0);
+    
+        await Promise.resolve(); // ★ここが重要：次のタスクに確実に進む
+    
+        setIsAudioUnlocked(true);
+        return true;
+      } catch (error) {
+        console.warn("Silent audio context unlock failed:", error);
+        return false;
+      }
+    };
+    
+  
+    // 🔵 そのあと playSoundEffect
+    const playSoundEffect = async (soundFile: string) => {
+      const unlocked = await unlockAudio();
+      if (!unlocked) {
+        console.warn("Sound unlock failed, skipping sound effect playback.");
+        return;
+      }
+      try {
+        const sound = new Audio(soundFile);
+        sound.setAttribute('playsinline', '');
+        await sound.play();
+      } catch (e) {
+        console.error(`Failed to load sound effect ${soundFile}:`, e);
+      }
+    };
+  
+    // 🔵 さらにそのあと handleUnlockAndTTSForAdviceTest
+    const handleUnlockAndTTSForAdviceTest = async () => {
+      const unlocked = await unlockAudio();
+      if (!unlocked) {
+        setError("音声再生の準備ができませんでした。もう一度タップしてください。");
+        return;
+      }
+      await handleGenerateAdviceTest();
+    };
+  
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
+
+
   // --- Ref定義 ---
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const currentBlobUrlRef = useRef<string | null>(null);
-
-  // --- 音声関連関数 ---
-  const unlockAudio = async () => {
-    if (isAudioUnlocked || typeof window === 'undefined') return;
-    console.log("Attempting to unlock audio...");
-  
-    try {
-      const silent = new Audio('/silence.mp3');
-      silent.setAttribute('playsinline', ''); // iOS用
-      await silent.play().then(() => {
-        console.log("Silent audio played to unlock audio context.");
-        silent.pause();
-        silent.currentTime = 0;
-        setIsAudioUnlocked(true);
-      }).catch((err) => {
-        console.warn("Silent audio play failed:", err);
-      });
-    } catch (error) {
-      console.error("unlockAudio error:", error);
-    }
-  };
-  
 
   const stopCurrentAudio = () => {
     if (currentAudioRef.current) {
@@ -108,11 +150,14 @@ export default function PracticePage() {
   };
 
   const playTTS = async (text: string) => {
-    await unlockAudio();
     if (!isTtsEnabled) return;
+  
+    await unlockAudio(); // 🟢🟢 ここ追加！ボタン押したらすぐAudioContextを起動する
+  
     stopCurrentAudio();
     setIsTtsPlaying(true);
     setError(null);
+  
     try {
       console.log("Fetching TTS for:", text);
       const res = await fetch('/api/text-to-speech', {
@@ -120,48 +165,51 @@ export default function PracticePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
       });
+  
       if (!res.ok) {
         let errorData: { error?: string } = {};
         try { errorData = await res.json(); } catch {}
         throw new Error(errorData.error || `TTS API error: ${res.status}`);
       }
+  
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       currentBlobUrlRef.current = url;
       const audio = new Audio(url);
       audio.setAttribute('playsinline', '');
       currentAudioRef.current = audio;
+  
       const cleanup = () => {
         setIsTtsPlaying(false);
         if (currentAudioRef.current === audio) {
-            currentAudioRef.current = null;
+          currentAudioRef.current = null;
         }
         if (currentBlobUrlRef.current === url) {
-            URL.revokeObjectURL(url);
-            currentBlobUrlRef.current = null;
+          URL.revokeObjectURL(url);
+          currentBlobUrlRef.current = null;
         }
       };
-      audio.onended = () => { console.log("TTS playback finished."); cleanup(); };
-      audio.onerror = (e) => { console.error("TTS playback error:", e); setError("音声の再生中にエラーが発生しました。"); cleanup(); };
+  
+      audio.onended = () => {
+        console.log("TTS playback finished.");
+        cleanup();
+      };
+      audio.onerror = (e) => {
+        console.error("TTS playback error:", e);
+        setError("音声の再生中にエラーが発生しました。");
+        cleanup();
+      };
+  
       console.log("Starting TTS playback...");
       await audio.play();
+  
     } catch (e) {
       console.error("TTS process error:", e);
       setError(e instanceof Error ? `TTSエラー: ${e.message}` : "TTS処理中に不明なエラーが発生しました。");
       stopCurrentAudio();
     }
   };
-
-  const playSoundEffect = async (soundFile: string) => {
-    await unlockAudio();
-    try {
-      const sound = new Audio(soundFile);
-      sound.setAttribute('playsinline', '');
-      sound.play().catch(e => console.warn(`Sound effect ${soundFile} playback failed:`, e));
-    } catch (e) {
-      console.error(`Failed to load sound effect ${soundFile}:`, e);
-    }
-  }
+    
 
   // --- データ取得・処理関数 ---
   const handleMeasureSwing = async () => {
@@ -213,8 +261,8 @@ export default function PracticePage() {
         let faceAngleText = '不明';
         if (faceAngleValue !== null && faceAngleValue !== undefined) {
           const angleAbs = Math.abs(faceAngleValue).toFixed(1);
-          if (faceAngleValue > 0.3) faceAngleText = `${angleAbs}度 オープン`;
-          else if (faceAngleValue < -0.3) faceAngleText = `${angleAbs}度 クローズ`;
+          if (faceAngleValue > 1.9) faceAngleText = `${angleAbs}度 オープン`;
+          else if (faceAngleValue < -1.9) faceAngleText = `${angleAbs}度 クローズ`;
           else faceAngleText = `ほぼ スクエア`;
         }
         const summaryText = `推定飛距離 ${data.estimateCarry?.toFixed(0)}ヤード、ヘッドスピード ${data.impactHeadSpeed?.toFixed(1)}、フェース角は ${faceAngleText} です。`;
@@ -251,6 +299,9 @@ export default function PracticePage() {
         const hasBlueBg = [ecrBg, hsBg, faBg, cpBg, attBg].some(bg => bg.includes('blue'));
         evaluationText = hasBlueBg ? '僅差' : '課題';
       }
+
+
+
       const factorsForApi = importanceDataTyped[swingResult.swing_cluster_unified.toString()]
         ?.slice(0, 3)
         .map(item => ({
@@ -354,7 +405,7 @@ export default function PracticePage() {
             </div>
             {/* 詳細アドバイスボタン */}
             <button
-              onClick={handleGenerateAdviceTest}
+              onClick={handleUnlockAndTTSForAdviceTest}
               disabled={adviceTestLoading || isLoading || !swingResult || isTtsPlaying}
               className={`px-6 py-2 rounded-3xl text-white font-semibold shadow-md transition duration-150 ease-in-out ${adviceTestLoading || isLoading || !swingResult || isTtsPlaying ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-800 to-pink-500 hover:from-purple-700 hover:to-pink-700 text-white'} disabled:opacity-50`}
             >
@@ -472,8 +523,8 @@ export default function PracticePage() {
                            let evaluationText = '不明'; let evaluationClass = 'bg-gray-500 text-gray-200'; if (swing.swing_success === true) { evaluationText = '成功'; evaluationClass = 'bg-accent text-white'; } else if (swing.swing_success === false) { const hasBlueBg = [ecrBg, hsBg, faBg, cpBg, attBg].some(bg => bg.includes('blue')); if (hasBlueBg) { evaluationText = '僅差'; evaluationClass = 'bg-green-900 text-yellow-100'; } else { evaluationText = '課題'; evaluationClass = 'bg-red-950 text-red-100'; } }
                            return (
                              <tr key={swing.id ? `${swing.id}-${index}` : index} className="hover:bg-gray-700/30">
-                               <td className="px-2 py-1.5 whitespace-nowrap">{formatDateTime(swing.fetchedAt)}</td>
-                               <td className="px-2 py-1.5" title={`Cluster ID: ${clusterIdStr ?? 'N/A'}`}>{swingTypeName}</td>
+<td className="px-2 py-1.5 whitespace-nowrap">{formatDateTime(swing.fetchedAt)}</td>
+<td className="px-2 py-1.5" title={`Cluster ID: ${clusterIdStr ?? 'N/A'}`}>{swingTypeName}</td>
                                <td className={`px-2 py-1.5 text-right font-medium text-white rounded ${ecrBg}`}>{swing.estimateCarry?.toFixed(1) ?? '---'} yd</td>
                                <td className={`px-2 py-1.5 text-right font-medium text-white rounded ${hsBg}`}>{swing.impactHeadSpeed?.toFixed(1) ?? '---'} m/s</td>
                                <td className={`px-2 py-1.5 text-right font-medium text-white rounded ${faBg}`}>{swing.impactFaceAngle?.toFixed(1) ?? '---'}°</td>
