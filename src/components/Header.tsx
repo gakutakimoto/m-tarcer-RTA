@@ -9,14 +9,14 @@ export default function Header() {
   const path = usePathname();
 
   return (
-    <header className="sticky top-0 bg-[#0a0e1a] py-1 mb-6 z-50">
+    <header className="sticky top-0 bg-[#0a0e1a] py-1 mb-2 z-50">
       {/* === Data Dashboard のタイトルエリア === */}
       <div className="px-8">
         <h1 className="text-3xl text-white">
           M‑tracer AI Data Dashboard / Real Time Swing Advisor
         </h1>
-        <p className="text-sm text-gray-400">
-          Golf Swing 3D Motion Sensor M‑Tracer by Epson / Last updated: Apr 20, 2025
+        <p className="text-sm text-gray-400 mb-4">
+          Golf Swing 3D Motion Sensor M‑Tracer by Epson / Last updated:2025
         </p>
       </div>
 

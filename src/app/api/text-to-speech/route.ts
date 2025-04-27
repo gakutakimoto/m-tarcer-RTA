@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       voice: "nova",        // 声の種類 (alloy, echo, fable, onyx, nova, shimmer)
       input: text,          // SSMLではなく、直接テキストを渡す
       response_format: "mp3", // 出力フォーマット (aac, flac, mp3, opus, pcm, wav も可能)
-      // speed: 1.0,        // 再生速度 (0.25から4.0、デフォルト1.0) - 必要なら指定
+      // speed: 2.0,        // 再生速度 (0.25から4.0、デフォルト1.0) - 必要なら指定
     });
 
     console.log("[API /text-to-speech] Successfully generated speech.");
