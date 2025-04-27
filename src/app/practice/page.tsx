@@ -415,7 +415,7 @@ export default function PracticePage() {
             <button
               onClick={handleMeasureSwing}
               disabled={isLoading || isTtsPlaying}
-              className={`px-6 py-2 rounded-3xl text-white font-semibold shadow-md transition duration-150 ease-in-out ${isLoading || isTtsPlaying ? 'bg-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-pink-500 to-purple-800 hover:from-purple-600 hover:to-pink-600'} disabled:opacity-50`}
+              className={`px-6 py-2 rounded-3xl text-white font-semibold shadow-md transition duration-150 ease-in-out ${isLoading || isTtsPlaying ? 'bg-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-green-900 to-green-500 hover:from-green-700 hover:to-green-400'} disabled:opacity-50`}
             >
                {isLoading ? "測定中..." : "M-tracerAIでスイングをクラスタ測定"}
             </button>
