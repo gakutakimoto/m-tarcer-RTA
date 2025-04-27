@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Header from "@/components/Header";
 import MetricCard from '@/components/MetricCard';
 import SuccessFactorsTable from "@/components/SuccessFactorsTable";
+import ProcessAdviceButtons from "@/components/ProcessAdviceButtons";
 import clusterSuccessMedians from "@/data/cluster_success_medians.json";
 import featureImportanceData from "@/data/featureImportance.json";
 import clustersData from "@/data/clusters.json";
@@ -504,6 +505,16 @@ export default function PracticePage() {
                   <SuccessFactorsTable factors={ importanceDataTyped[swingResult.swing_cluster_unified.toString()] ?.slice(0, 3) .map((item) => ({ feature: featureNameMap[item.feature] || item.feature, importance: item.importance, median: item.median, actual: swingResult?.[item.feature as keyof SwingDataFromApi] ?? null, unit: featureUnitMap[item.feature] || "", })) ?? [] } />
                 </section>
               )}
+
+<ProcessAdviceButtons
+  swingResult={swingResult}
+  isLoading={isLoading}
+  isTtsPlaying={isTtsPlaying}
+  stopCurrentAudio={stopCurrentAudio}
+  setAdviceText={setAdviceText}
+  setError={setError}
+/>
+
 
               {/* 練習履歴テーブル */}
               <section> {/* ← 練習履歴テーブルの開始セクション */}
