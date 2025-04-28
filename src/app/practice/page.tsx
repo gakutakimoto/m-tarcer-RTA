@@ -405,13 +405,6 @@ export default function PracticePage() {
               </span>
             </div>
             {/* 詳細アドバイスボタン */}
-            <button
-              onClick={handleUnlockAndTTSForAdviceTest}
-              disabled={adviceTestLoading || isLoading || !swingResult || isTtsPlaying}
-              className={`px-6 py-2 rounded-3xl text-white font-semibold shadow-md transition duration-150 ease-in-out ${adviceTestLoading || isLoading || !swingResult || isTtsPlaying ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-800 to-pink-500 hover:from-purple-700 hover:to-pink-700 text-white'} disabled:opacity-50`}
-            >
-               {adviceTestLoading ? 'AIがアドバイスを生成中…' : 'AI解析アルゴリズムでスイング分析'}
-            </button>
             {/* 測定ボタン */}
             <button
               onClick={handleMeasureSwing}
@@ -420,6 +413,15 @@ export default function PracticePage() {
             >
                {isLoading ? "測定中..." : "M-tracerAIでスイングをクラスタ測定"}
             </button>
+
+            <button
+              onClick={handleUnlockAndTTSForAdviceTest}
+              disabled={adviceTestLoading || isLoading || !swingResult || isTtsPlaying}
+              className={`px-6 py-2 rounded-3xl text-white font-semibold shadow-md transition duration-150 ease-in-out ${adviceTestLoading || isLoading || !swingResult || isTtsPlaying ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-800 to-pink-500 hover:from-purple-700 hover:to-pink-700 text-white'} disabled:opacity-50`}
+            >
+               {adviceTestLoading ? 'AIがアドバイスを生成中…' : 'AI解析アルゴリズムでスイング分析'}
+            </button>
+
           </div>
         </section>
 
@@ -456,7 +458,7 @@ export default function PracticePage() {
               </section>
 
               {/* 左右比較 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+              <div className="w-full mb-2">
                 <div className="bg-card p-3 rounded-lg shadow-lg">
                   <h2 className="text-lg font-semibold mb-2 border-b border-gray-700 pb-1 text-white">今回のスイング結果</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -519,7 +521,7 @@ export default function PracticePage() {
               {/* 練習履歴テーブル */}
               <section> {/* ← 練習履歴テーブルの開始セクション */}
                  <div className="flex justify-between items-center mb-2">
-                   <h2 className="text-xl font-semibold">練習履歴 ({practiceHistory.length}件)</h2>
+                   <h2 className="text-xl font-semibold">スイング履歴 ({practiceHistory.length}件)</h2>
                    <button onClick={handleResetHistory} disabled={practiceHistory.length === 0 || isLoading || isTtsPlaying} className="px-4 py-1 rounded bg-pink-600 hover:bg-pink-500 text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"> 履歴リセット </button>
                  </div>
                 <div className="bg-card rounded-lg shadow-lg overflow-x-auto">
