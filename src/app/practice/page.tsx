@@ -363,7 +363,7 @@ export default function PracticePage() {
   return (
     <>
       <Header />
-      <main className="pt-8 min-h-screen px-2 sm:px-6 md:px-8 md:max-w-none mx-auto pb-16 bg-[#0a0e1a] text-white">
+      <main className="pt-8 min-h-screen px-2 sm:px-6 md:px-16 md:max-w-none mx-auto pb-16 bg-[#0a0e1a] text-white">
       <h1 className="text-xl font-semibold mb-2 text-center md:text-left">プラクティスモード (Real Time Swing Advisor)</h1>
         {/* 操作エリア */}
         <section className="mb-2 p-4 bg-card rounded-lg shadow-md flex flex-wrap items-center gap-4">
@@ -549,7 +549,7 @@ export default function PracticePage() {
               {/* 練習履歴テーブル */}
               <section> {/* ← 練習履歴テーブルの開始セクション */}
                  <div className="flex justify-between items-center mb-2">
-                   <h2 className="text-xl font-semibold">スイング履歴 ({practiceHistory.length}件)</h2>
+                   <h2 className="text-nomal font-semibold">スイング履歴 ({practiceHistory.length}件)</h2>
                    <button onClick={handleResetHistory} disabled={practiceHistory.length === 0 || isLoading || isTtsPlaying} className="px-4 py-1 rounded bg-pink-600 hover:bg-pink-500 text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"> 履歴リセット </button>
                  </div>
                 <div className="bg-card rounded-lg shadow-lg overflow-x-auto">

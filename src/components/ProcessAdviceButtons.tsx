@@ -105,14 +105,14 @@ const ProcessAdviceButtons: React.FC<ProcessAdviceButtonsProps> = ({
   };
 
   const processButtons = [
-    { key: "addressHandFirst", label: "アドレス ハンドファースト" },
-    { key: "addressLieAngle", label: "アドレス ライ角" },
-    { key: "halfwaydownFaceAngleToVertical", label: "ハーフウェイダウン フェース角" },
-    { key: "impactGripSpeed", label: "インパクト グリップスピード" },
-    { key: "downSwingShaftRotationMax", label: "ダウンスイング シャフト最大回転" },
-    { key: "halfwaybackFaceAngleToVertical", label: "バックスイング フェース角" },
+    { key: "addressLieAngle", label: "アドレス ライアングル" },
+    { key: "addressHandFirst", label: "アドレス ハンドファースト" },   
+    { key: "halfwaybackFaceAngleToVertical", label: "ハーフウェイバック フェース角" },
     { key: "topFaceAngleToHorizontal", label: "トップアングル フェース角" },
-    { key: "downSwingShaftRotationMin", label: "ダウンスイング シャフト回転MIN" },
+    { key: "halfwaydownFaceAngleToVertical", label: "ハーフウェイダウン フェース角" },
+    { key: "downSwingShaftRotationMin", label: "ダウンスイング シャフト最小回転" },
+    { key: "downSwingShaftRotationMax", label: "ダウンスイング シャフト最大回転" },  
+    { key: "impactGripSpeed", label: "インパクト グリップスピード" },
   ];
 
   return (
@@ -134,14 +134,14 @@ const ProcessAdviceButtons: React.FC<ProcessAdviceButtonsProps> = ({
       </div>
 
       {/* アドバイス表示エリア */}
-      <div className="min-h-[140px] bg-card p-4 rounded-lg shadow-inner text-gray-100 text-sm whitespace-pre-wrap">
+      <div className="min-h-[80px] bg-card p-2 rounded-lg shadow-inner text-gray-100 text-sm whitespace-pre-wrap">
         {selectedProcessLabel && (
           <h4 className="text-base font-bold text-white mb-2">{selectedProcessLabel}</h4>
         )}
         {processAdviceText ? (
           <p>{processAdviceText}</p>
         ) : (
-          <p className="text-gray-400 italic">プロセス改善アドバイスがここに表示されます</p>
+          <p className="text-gray-400 italic">AI解析ゴルフアドバイスがここに表示されます</p>
         )}
       </div>
     </section>
