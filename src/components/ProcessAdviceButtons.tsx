@@ -107,9 +107,9 @@ const ProcessAdviceButtons: React.FC<ProcessAdviceButtonsProps> = ({
   const processButtons = [
     { key: "addressHandFirst", label: "アドレス ハンドファースト" },
     { key: "addressLieAngle", label: "アドレス ライ角" },
-    { key: "halfwaydownFaceAngleToVertical", label: "ダウンスイング フェース角" },
+    { key: "halfwaydownFaceAngleToVertical", label: "ハーフウェイダウン フェース角" },
     { key: "impactGripSpeed", label: "インパクト グリップスピード" },
-    { key: "downSwingShaftRotationMax", label: "ダウンスイング シャフト回転MAX" },
+    { key: "downSwingShaftRotationMax", label: "ダウンスイング シャフト最大回転" },
     { key: "halfwaybackFaceAngleToVertical", label: "バックスイング フェース角" },
     { key: "topFaceAngleToHorizontal", label: "トップアングル フェース角" },
     { key: "downSwingShaftRotationMin", label: "ダウンスイング シャフト回転MIN" },

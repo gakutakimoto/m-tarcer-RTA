@@ -363,55 +363,83 @@ export default function PracticePage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen px-2 sm:px-6 md:px-8 md:max-w-none mx-auto pb-16 bg-[#0a0e1a] text-white">
+      <main className="pt-8 min-h-screen px-2 sm:px-6 md:px-8 md:max-w-none mx-auto pb-16 bg-[#0a0e1a] text-white">
       <h1 className="text-xl font-semibold mb-2 text-center md:text-left">プラクティスモード (Real Time Swing Advisor)</h1>
         {/* 操作エリア */}
-        <section className="mb-2 p-4 bg-card rounded-lg shadow-md flex items-center justify-between gap-4 flex-wrap">
-          {/* クラブ選択 */}
-          <div className="flex items-center gap-2">
-            <span className="text-gray-400 text-sm">練習クラブ:</span>
-            <div className="inline-flex rounded-md shadow-sm" role="group">
-              <button type="button" onClick={() => setSelectedClub('D')} disabled={isLoading || isTtsPlaying} className={`px-4 py-1.5 text-sm font-semibold rounded-l-md transition-colors duration-150 ${selectedClub === 'D' ? 'bg-accent text-white z-10 ring-1 ring-accent' : 'bg-gray-600 text-gray-300 hover:bg-gray-500 disabled:opacity-50'}`}> ドライバー </button>
-              <button type="button" onClick={() => setSelectedClub('I')} disabled={isLoading || isTtsPlaying} className={`px-4 py-1.5 text-sm font-semibold rounded-r-md transition-colors duration-150 ${selectedClub === 'I' ? 'bg-accent text-white z-10 ring-1 ring-accent' : 'bg-gray-600 text-gray-300 hover:bg-gray-500 disabled:opacity-50'}`}> アイアン </button>
-            </div>
-          </div>
+        <section className="mb-2 p-4 bg-card rounded-lg shadow-md flex flex-wrap items-center gap-4">
+
+{/* 左側：クラブ選択＋AI音声トグル */}
+<div className="flex items-center gap-4">
+
+  {/* クラブ選択 */}
+  <div className="flex items-center gap-2">
+    <span className="text-gray-400 text-sm">練習クラブ:</span>
+    <div className="inline-flex rounded-md shadow-sm" role="group">
+      <button
+        type="button"
+        onClick={() => setSelectedClub('D')}
+        disabled={isLoading || isTtsPlaying}
+        className={`px-4 py-1.5 text-sm font-semibold rounded-l-md transition-colors duration-150 ${
+          selectedClub === 'D' ? 'bg-accent text-white z-10 ring-1 ring-accent' : 'bg-gray-600 text-gray-300 hover:bg-gray-500 disabled:opacity-50'
+        }`}
+      >
+        ドライバー
+      </button>
+      <button
+        type="button"
+        onClick={() => setSelectedClub('I')}
+        disabled={isLoading || isTtsPlaying}
+        className={`px-4 py-1.5 text-sm font-semibold rounded-r-md transition-colors duration-150 ${
+          selectedClub === 'I' ? 'bg-accent text-white z-10 ring-1 ring-accent' : 'bg-gray-600 text-gray-300 hover:bg-gray-500 disabled:opacity-50'
+        }`}
+      >
+        アイアン
+      </button>
+    </div>
+  </div>
+
+  {/* AI音声トグル */}
+  <div className="flex items-center gap-2">
+    <button
+      type="button"
+      onClick={() => {
+        const newState = !isTtsEnabled;
+        setIsTtsEnabled(newState);
+        if (!newState) {
+          stopCurrentAudio();
+        }
+      }}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-gray-900 ${
+        isTtsEnabled ? 'bg-accent' : 'bg-gray-600'
+      }`}
+    >
+      <span className="sr-only">音声 {isTtsEnabled ? 'ON' : 'OFF'}</span>
+      <span className={`${isTtsEnabled ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
+    </button>
+    <span className="text-sm text-gray-400 flex items-center">
+      AI音声
+      {isTtsPlaying && (
+        <span className="ml-2 flex h-3 w-3 relative">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+      )}
+    </span>
+  </div>
+
+</div>
+
 
           {/* 右側のボタン群 */}
-          <div className="flex items-center gap-4 flex-wrap">
-            {/* AI音声 トグル */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const newState = !isTtsEnabled;
-                  setIsTtsEnabled(newState);
-                  if (!newState) {
-                    stopCurrentAudio();
-                  }
-                }}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-gray-900 ${isTtsEnabled ? 'bg-accent' : 'bg-gray-600'}`}
-              >
-                 <span className="sr-only">音声 {isTtsEnabled ? 'ON' : 'OFF'}</span>
-                 <span className={`${isTtsEnabled ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
-              </button>
-              <span className="text-sm text-gray-400 flex items-center">
-                AI音声
-                {isTtsPlaying && (
-                  <span className="ml-2 flex h-3 w-3 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                  </span>
-                )}
-              </span>
-            </div>
-            {/* 詳細アドバイスボタン */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+          {/* 詳細アドバイスボタン */}
             {/* 測定ボタン */}
             <button
               onClick={handleMeasureSwing}
               disabled={isLoading || isTtsPlaying}
               className={`px-6 py-2 rounded-3xl text-white font-semibold shadow-md transition duration-150 ease-in-out ${isLoading || isTtsPlaying ? 'bg-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-green-900 to-green-500 hover:from-green-700 hover:to-green-400'} disabled:opacity-50`}
             >
-               {isLoading ? "測定中..." : "M-tracerAIでスイングをクラスタ測定"}
+               {isLoading ? "測定中..." : "M-tracer AIでスイングクラスタ測定"}
             </button>
 
             <button
