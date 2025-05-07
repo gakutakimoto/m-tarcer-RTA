@@ -43,7 +43,7 @@ for (let x = -width / 2; x <= width / 2; x += interval) {
     <group>
       {/* ライン（半透明ホワイト） */}
       <lineSegments geometry={geom}>
-        <lineBasicMaterial color="#ffffff" transparent opacity={0.4} />
+        <lineBasicMaterial color="#ffffff" transparent opacity={0.5} />
       </lineSegments>
 
       {/* ラベル（Billboard Text） */}
@@ -51,14 +51,14 @@ for (let x = -width / 2; x <= width / 2; x += interval) {
         <Text
         key={z}
         /* ❶ X: 右端より 1y 内側へ　❷ Y: もう少し浮かす (+0.12) */
-        position={[width / 2 - 50, y + 2, z]}
-        fontSize={2.5}
+        position={[width / 2 - 69, y + 1, z]}
+        fontSize={2}
         color="#ffffff"
         anchorX="left"
         anchorY="middle"
         rotation={[Math.PI, 0, Math.PI]}
         outlineColor="#001a0e"
-        outlineWidth={0.05}
+        outlineWidth={0.03}
         >
           {text}
         </Text>
