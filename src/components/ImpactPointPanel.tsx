@@ -42,8 +42,8 @@ export default function ImpactPointPanel({ clubType, pointX, pointY }: Props) {
 
         {/* ぼかしマーカー */}
         <span
-          className="absolute w-6 h-6 md:w-7 md:h-7 rounded-full bg-orange-400/60 
-                     shadow-[0_0_12px_10px_rgba(255,123,0,0.55)]"
+          className="absolute w-6 h-6 md:w-7 md:h-7 rounded-full bg-red-700/65 
+                     shadow-[0_0_12px_12px_rgba(178,34,34,0.55)]"
           style={{
             left: `calc(50% + ${dx}px)`,
             top:  `calc(50% + ${dy}px)`,
