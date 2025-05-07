@@ -44,6 +44,8 @@ export async function GET(request: Request) {
       downSwingShaftRotationMax,
       halfwaybackFaceAngleToVertical,
       topFaceAngleToHorizontal,
+      impactPointX,
+      impactPointY,
       downSwingShaftRotationMin
     FROM ${tableName}
     ${whereClause}
