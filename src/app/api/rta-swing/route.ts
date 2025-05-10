@@ -1,75 +1,161 @@
 // -----------------------------------------------------------------------------
-// src/app/api/last-swing/route.ts
-//  └ 直近 1 スイングを RTA サーバーから取り込み、
-//     既存 UI が期待するキー名にマッピングして返すだけの薄い proxy
+// src/app/api/rta-swing/route.ts
 // -----------------------------------------------------------------------------
+export const dynamic = "force-dynamic";
 
-import type { NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import axios from "axios";
+import { toDI } from "@/utils/clubType";
 
-/* ===== BigQuery 時代と同じレスポンス型（一部のみ） ===== */
-type SwingData = {
+const MTRACER_BASE_URL =
+  process.env.MTRACER_URL || "https://obs.m-tracer.golf";
+const ENCRYPTION_ENDPOINT_URL = process.env.ENCRYPTION_ENDPOINT_URL;
+
+/* ===== 型定義 ===== */
+interface RTASwing {
   clubType: "D" | "I";
-  estimateCarry: number | null;
+  estimateCarry: number;
   impactHeadSpeed: number | null;
   impactFaceAngle: number;
   impactAttackAngle: number;
   impactLoftAngle: number;
   impactClubPath: number;
   impactRelativeFaceAngle: number;
-  impactPointX: number | null;
-  impactPointY: number | null;
+  impactPointX: number;
+  impactPointY: number;
   swingDate?: string;
-};
+}
+interface SwingListItem {
+  swingId: string;
+  swingDate: string;
+  club_type?: string;
+}
+interface SwingListRes {
+  status: boolean;
+  message?: string;
+  data?: { [k: string]: SwingListItem } | SwingListItem[];
+}
+interface SwingDetailRes {
+  status: boolean;
+  message?: string;
+  data?: any;
+}
 
-/* -------- RTA 側 ⇒ SwingData へ詰め替え -------- */
-function toSwingData(raw: any): SwingData {
-  const angle = raw?.data?.angle?.data ?? {};
-  const dist  = raw?.data?.distance?.data ?? {};
-  const speed = raw?.data?.speed?.data ?? {};
+/* ===== util ===== */
+const format = (d: Date) => d.toISOString().slice(0, 10);
+const num    = (v: any, def = 0) =>
+  v == null ? def : Number.parseFloat(v) || def;
 
-  /* 数値変換ヘルパ ― "+9.8" → 9.8  , "-1.6" → -1.6 */
-  const num = (v: any) => (typeof v === "string" ? parseFloat(v) : v ?? 0);
+/* measurementInfo を深掘りで取得 */
+function findMeasurementInfo(obj: any): any | null {
+  if (!obj || typeof obj !== "object") return null;
+  if (obj.measurementInfo) return obj.measurementInfo;
+  if (obj.measurementinfo) return obj.measurementinfo;
+  if (obj.raw_data?.measurementInfo) return obj.raw_data.measurementInfo;
+  for (const k of Object.keys(obj)) {
+    const found = findMeasurementInfo(obj[k]);
+    if (found) return found;
+  }
+  return null;
+}
+
+/* ===== measurementInfo → RTASwing 変換 ===== */
+function toRTASwing(mi: any, header: any, latest: SwingListItem): RTASwing {
+  /* --- clubType 判定 -------------------------------------------------- */
+  const clubTypeResolved: "D" | "I" =
+    mi.clubLength != null
+      ? mi.clubLength >= 1 ? "D" : "I"
+      : toDI(mi.clubType ?? latest?.club_type ?? "");
 
   return {
-    clubType: raw.swing?.club_type?.startsWith("D") ? "D" : "I",
-    estimateCarry: dist.carry ?? null,
-    impactHeadSpeed: speed.impactHeadSpeed ?? null,
-    impactFaceAngle: num(angle.impactFaceAngle),
-    impactAttackAngle: num(angle.impactAttackAngle),
-    impactLoftAngle:  num(angle.impactLoftAngle),
-    impactClubPath:   num(angle.impactClubPath),
-    impactRelativeFaceAngle: num(angle.impactRelativeFaceAngle),
-    /* RTA API には無いので一旦 0 → 将来追加されたら差し替え */
-    impactPointX: 0,
-    impactPointY: 0,
-    swingDate: raw.swing?.swingDate ?? "",
+    clubType: clubTypeResolved,
+    estimateCarry:           num(mi.estimateCarry),
+    impactHeadSpeed:         mi.impactHeadSpeed != null ? num(mi.impactHeadSpeed) : null,
+    impactFaceAngle:         num(mi.impactFaceAngle),
+    impactAttackAngle:       num(mi.impactAttackAngle),
+    impactLoftAngle:         num(mi.impactLoftAngle),
+    impactClubPath:          num(mi.impactClubPath),
+    impactRelativeFaceAngle: num(mi.impactRelativeFaceAngle),
+    impactPointX:            num(mi.impactPointX),
+    impactPointY:            num(mi.impactPointY),
+    swingDate: header?.swingDate ?? latest.swingDate,
   };
 }
 
-/* ===================== GET ハンドラ ===================== */
+/* ========================================================================= */
 export async function GET(req: NextRequest) {
-  const uid   = req.nextUrl.searchParams.get("uid");
-  const days  = req.nextUrl.searchParams.get("days") ?? "45";
+  const uid  = req.nextUrl.searchParams.get("uid")?.trim();
+  const days = Number.parseInt(req.nextUrl.searchParams.get("days") ?? "1", 10);
 
-  if (!uid) {
-    return Response.json(
-      { error: "uid param is required" },
-      { status: 400 },
-    );
-  }
+  if (!uid) return NextResponse.json({ error: "UID必須" }, { status: 400 });
+  if (!ENCRYPTION_ENDPOINT_URL || !MTRACER_BASE_URL)
+    return NextResponse.json({ error: "サーバー設定エラー" }, { status: 500 });
 
   try {
-    const url  = `https://nextjs-last-swing-v2.vercel.app/api/m-tracer` +
-                 `?uid=${uid}&days=${days}`;
-    const res  = await fetch(url, { cache: "no-store" });
-    const json = await res.json();
+    /* 1) UID 暗号化 ---------------------------------------------------- */
+    const encUid: string = (
+      await axios.post(
+        ENCRYPTION_ENDPOINT_URL,
+        { uid },
+        { headers: { "Content-Type": "application/json" }, timeout: 10_000 }
+      )
+    ).data?.encrypted_uid;
+    if (!encUid) throw new Error("UID暗号化失敗");
 
-    if (!json?.success) throw new Error("RTA API returned error");
+    /* 2) スイングリスト取得 ------------------------------------------- */
+    const today = new Date();
+    const listUrl = `${MTRACER_BASE_URL}/api/swing_list?uid=${encodeURIComponent(
+      encUid
+    )}&start_date=${format(
+      new Date(today.getTime() - days * 86_400_000)
+    )}&end_date=${format(today)}`;
 
-    return Response.json(toSwingData(json));
-  } catch (err) {
-    console.error("[last-swing] fetch error", err);
-    return Response.json({ error: "fetch failed" }, { status: 500 });
+    const list: SwingListRes = (
+      await axios.get(listUrl, {
+        headers: { "User-Agent": "mtracer-ai (list)" },
+        timeout: 15_000,
+      })
+    ).data;
+    if (!list.status) throw new Error(list.message);
+
+    const swings: SwingListItem[] = Array.isArray(list.data)
+      ? list.data
+      : Object.values(list.data || {});
+    if (!swings.length)
+      return NextResponse.json({ message: "スイング無し" }, { status: 404 });
+
+    swings.sort((a, b) => Date.parse(b.swingDate) - Date.parse(a.swingDate));
+    const latest = swings[0];
+
+    /* 3) スイング詳細取得 --------------------------------------------- */
+    const detailUrl = `${MTRACER_BASE_URL}/api/swing_detail?uid=${encodeURIComponent(
+      encUid
+    )}&swing_id=${latest.swingId}`;
+
+    const detail: SwingDetailRes = (
+      await axios.get(detailUrl, {
+        headers: { "User-Agent": "mtracer-ai (detail)" },
+        timeout: 15_000,
+      })
+    ).data;
+    if (!detail.status) throw new Error(detail.message);
+
+    const mi = findMeasurementInfo(detail.data);
+    if (!mi) throw new Error("measurementInfo がスイング詳細に存在しません。");
+
+    const header =
+      detail.data?.raw_data?.headerInfo ?? detail.data?.headerInfo;
+
+    /* 4) 整形して返却 -------------------------------------------------- */
+    return NextResponse.json(toRTASwing(mi, header, latest));
+  } catch (e: any) {
+    console.error("RTA API Error:", e?.message);
+    const status = e?.response?.status ?? 500;
+    const msg =
+      e?.response?.data?.error ??
+      e?.response?.data?.message ??
+      e.message ??
+      "unknown";
+    return NextResponse.json({ error: msg }, { status });
   }
 }
-// -----------------------------------------------------------------------------

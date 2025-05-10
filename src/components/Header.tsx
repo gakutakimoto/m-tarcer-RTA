@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// src/components/Header.tsx   ★ 3 モード共通ヘッダ・リファクタ版 ★
+// src/components/Header.tsx   ★ 左2段＋右ボタン横並び版 ★
 // -----------------------------------------------------------------------------
 "use client";
 
@@ -11,54 +11,47 @@ import { usePathname } from "next/navigation";
 const modes = [
   { href: "/practice", label: "プラクティスモード" },
   { href: "/",         label: "データビューモード" },
-  { href: "/simulate", label: "シミュレートモード" }, // ★ New!
+  { href: "/simulate", label: "シミュレートモード" },
 ] as const;
 
 /* =================================================================== */
 export default function Header() {
   const pathname = usePathname();
-
-  /* ルート "/" は pathname が "" になるケースを吸収 ---------------- */
-  const current = pathname === "" ? "/" : pathname;
+  const current  = pathname === "" ? "/" : pathname;
 
   return (
-    <header className="mb-6 sticky top-0 z-50 bg-[#0a0e1a] shadow-md">
-      {/* ---------- タイトル / サブタイトル ---------- */}
-      <div className="px-4 py-1">
-        <h1 className="text-2xl md:text-3xl font-nomal text-white leading-tight">
+    <header className="sticky top-0 z-50 bg-[#0a0e1a] shadow-md px-4 py-2">
+      <div className="max-w-screen-2xl mx-auto flex items-center justify-between">
+        {/* ───────── 左：タイトル 2 段 ───────── */}
+        <div className="flex flex-col leading-tight">
+          <h1 className="text-lg md:text-3xl font-nomal text-white">
           M-tracerAI Data Dashboard / Real Time Swing Advisor
-        </h1>
-        <p className="text-xs md:text-sm text-gray-400">
-          Golf Swing 3D Motion Sensor&nbsp;M-Tracer&nbsp;by&nbsp;Epson&nbsp;/&nbsp;Last&nbsp;updated:2025
-        </p>
-      </div>
+          </h1>
+          <span className="text-[10px] md:text-lg text-gray-400">
+          Golf Swing 3D Motion Sensor M-Tracer by Epson / Last updated:2025
+          </span>
+        </div>
 
-      {/* ---------- モード切替ナビ ---------- */}
-      <nav className="px-4 py-1">
-        <ul className="flex flex-wrap justify-end gap-2">
+        {/* ───────── 右：モード切替ボタン横並び ───────── */}
+        <nav className="flex gap-2">
           {modes.map((m) => {
-            const isActive = current === m.href;
+            const active = current === m.href;
             return (
-              <li key={m.href}>
-                <Link
-                  href={m.href}
-                  className={`px-3 py-1 rounded text-sm font-semibold transition
-                    ${isActive
-                      ? "bg-blue-600 text-white hover:bg-blue-500"
-                      : "bg-gray-800 text-gray-200 hover:bg-gray-700"}`}
-                >
-                  {m.label}
-                </Link>
-              </li>
+              <Link
+                key={m.href}
+                href={m.href}
+                className={`px-3 py-1 rounded text-xs md:text-sm font-semibold transition
+                  ${active
+                    ? "bg-blue-600 text-white hover:bg-blue-500"
+                    : "bg-gray-800 text-gray-200 hover:bg-gray-700"}`}
+              >
+                {m.label}
+              </Link>
             );
           })}
-        </ul>
-      </nav>
+        </nav>
+      </div>
     </header>
   );
 }
-// -----------------------------------------------------------------------------
-// ・3 モード対応（practice / data-view / simulate）
-// ・active 判定を usePathname() で一本化
-// ・Tailwind クラス整理：blue-600 アクセントで統一
 // -----------------------------------------------------------------------------

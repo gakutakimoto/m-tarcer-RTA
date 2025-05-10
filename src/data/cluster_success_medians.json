@@ -268,5 +268,13 @@
     "halfwaybackFaceAngleToVertical": -27.9738595,
     "estimateCarry": 130.825275,
     "naturalUncock": 9.7772205
+  },
+  {
+    "cluster_id": 999,
+    "impactFaceAngle": 2,
+    "impactAttackAngle": 2,
+    "impactClubPath": 3,
+    "impactHeadSpeed": 42,
+    "estimateCarry": 200
   }
 ]

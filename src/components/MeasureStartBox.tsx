@@ -38,11 +38,11 @@ export default function MeasureStartBox({ swing, headSpeed }: Props) {
   ];
 
   return (
-    <div className="w-full rounded-lg bg-[#101624] p-2">
-      <h4 className="text-sm font-bold text-gray-300 mb-4">センサー取得数値</h4>
+    <div className="w-full rounded-lg bg-[#101624] p-1">
+      <h4 className="text-xs font-bold text-gray-300 mb-2">センサー取得数値</h4>
 
       {/* min-w-0 で余計な横はみ出しを防止 */}
-      <div className="grid grid-cols-4 gap-x-8 gap-y-2">
+      <div className="grid grid-cols-4 gap-x-4 gap-y-1">
         {metrics.map((m) => (
           <Metric key={m.label} {...m} />
         ))}

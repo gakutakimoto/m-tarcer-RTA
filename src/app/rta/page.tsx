@@ -1,6 +1,5 @@
 // -----------------------------------------------------------------------------
-// src/app/rta/page.tsx
-//  ── Real‑Time Advisor モード（UID 入力 → 単発 or 1 秒ごと自動更新）
+// src/app/rta/page.tsx   (RTA ライブページ)
 // -----------------------------------------------------------------------------
 "use client";
 
@@ -15,7 +14,7 @@ import TrajectoryWithBall from "@/components/TrajectoryWithBall";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
-/* ▽ 3D カメラ設定（simulate と同じ） */
+/* -------------------- 3D camera -------------------- */
 function CameraSetup() {
   const { camera } = useThree();
   useEffect(() => {
@@ -25,143 +24,135 @@ function CameraSetup() {
   }, [camera]);
   return null;
 }
-/* △ ---------------------------------------------------------- */
 
-/* ===== API から返ってくる型 ===== */
+/* -------------------- types -------------------- */
 interface RTASwing {
-  swingId?: string;                // ← API で返るなら差分判定に利用
-  swing_cluster_unified: number | null;
   clubType: "D" | "I";
   estimateCarry: number;
   impactHeadSpeed?: number | null;
   impactFaceAngle: number;
-  impactAttackAngle: number;      // ※ Vercel 側キー名（= down/up ではなくロフト角）
+  impactAttackAngle: number;
   impactLoftAngle: number;
   impactClubPath: number;
   impactRelativeFaceAngle: number;
   impactPointX: number;
   impactPointY: number;
 }
-/* ------------------------------------------------------------ */
 
+/* ===================================================================== */
 export default function RTAPage() {
-  /* ---------- フォーム / 状態 ---------- */
-  const [uid, setUid]           = useState<string>("");   // ← デフォルト空欄
-  const [days]                  = useState("45");         // 必要なら入力 UI を追加しても OK
-  const [loading, setLoading]   = useState(false);
-  const [isRealtime, setRealtime] = useState(false);      // ⇦ RT 監視フラグ
-  const timerRef                = useRef<NodeJS.Timeout | null>(null);
+  /* --- state / ref --- */
+  const [uid, setUid]                  = useState("");
+  const [loading, setLoading]          = useState(false);
+  const [realtime, setRealtime]        = useState(false);      // UI 用
+  const realtimeFlagRef               = useRef(false);        // 即時フラグ
 
-  /* ---------- 取得データ ---------- */
-  const [swing, setSwing]       = useState<RTASwing | null>(null);
-  const [headSpeed, setHS]      = useState<number | null>(null);
+  const timerRef  = useRef<NodeJS.Timeout | null>(null);
+  const abortRef  = useRef<AbortController | null>(null);
+  const lastHash  = useRef<string>("");
 
-  /* ---------- API 呼び出し ---------- */
-  const fetchRTASwing = async () => {
-    if (!uid) return;
+  const [swing,   setSwing]   = useState<RTASwing | null>(null);
+  const [head,    setHead]    = useState<number | null>(null);
+  const [advice,  setAdvice]  = useState<string | null>(null);
 
+  /* --- util --- */
+  const safe = (v: number | undefined | null) =>
+    isFinite(v as number) ? Math.round((v as number) * 10) : Math.random();
+  const hash = (s: RTASwing) =>
+    [
+      safe(s.estimateCarry),
+      safe(s.impactFaceAngle),
+      safe(s.impactAttackAngle),
+      safe(s.impactClubPath),
+      safe(s.impactLoftAngle),
+      s.clubType,
+    ].join("|");
+
+  /* --- simple advice --- */
+  const fetchAdvice = async (d: RTASwing) => {
     try {
-      const res = await fetch(
-        `/api/rta-swing?uid=${encodeURIComponent(uid)}&days=${days}`,
-        { cache: "no-store" }
-      );
-      if (!res.ok) return;
-
-      const data = (await res.json()) as RTASwing;
-
-      /* ====== 同一スイング判定 ===== */
-      const sameSwing =
-        swing &&
-        (
-          (data.swingId && data.swingId === swing.swingId) || // ID が取れるならここで判定
-          (!data.swingId &&                                      // ID が無い場合は数値で判定
-            data.estimateCarry     === swing.estimateCarry &&
-            data.impactFaceAngle   === swing.impactFaceAngle &&
-            data.impactAttackAngle === swing.impactAttackAngle &&
-            data.impactPointX      === swing.impactPointX &&
-            data.impactPointY      === swing.impactPointY)
-        );
-
-      if (sameSwing) return;     // まったく同じ → 何も更新しない
-      /* ============================ */
-
-      setSwing(data);
-      setHS(
-        data.impactHeadSpeed ?? data.estimateCarry / 4.47  // fallback
-      );
-    } catch (err) {
-      console.error(err);
+      const res = await fetch("/api/generate-advice/simple", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ swingResult: d, tone: "gal" }),
+      });
+      if (!res.ok) throw new Error();
+      const { advice } = await res.json();
+      setAdvice(advice);
+    } catch {
+      setAdvice("(取得失敗)");
     }
   };
 
-  /* ---------- ボタン操作 ---------- */
-  const handleSingleFetch = async () => {
+  /* --- fetch RT --- */
+  const fetchRT = async () => {
+    if (!uid) return;
+    abortRef.current = new AbortController();
+    try {
+      const res = await fetch(
+        `/api/rta-swing?uid=${encodeURIComponent(uid)}`,
+        { cache: "no-store", signal: abortRef.current.signal }
+      );
+      if (!res.ok) throw new Error();
+      const d: RTASwing = await res.json();
+
+      if (!realtimeFlagRef.current) return;           // 停止後は無視
+
+      const h = hash(d);
+      if (h === lastHash.current) return;
+      lastHash.current = h;
+
+      setSwing(d);
+      setHead(d.impactHeadSpeed ?? d.estimateCarry / 4.47);
+      fetchAdvice(d);
+    } catch (e: any) {
+      if (e.name !== "AbortError") console.error(e);
+    }
+  };
+
+  /* --- single shot --- */
+  const handleSingle = async () => {
+    lastHash.current = "";
     setLoading(true);
-    await fetchRTASwing();
+    await fetchRT();
     setLoading(false);
   };
 
-  const toggleRealtime = () => setRealtime((prev) => !prev);
+  /* --- toggle realtime --- */
+  const toggleRealtime = () => {
+    const next = !realtimeFlagRef.current;
+    realtimeFlagRef.current = next;
+    setRealtime(next);
 
-  /* ---------- ポーリング制御 ---------- */
-  useEffect(() => {
-    if (isRealtime) {
-      fetchRTASwing();                             // 即 1 発目
-      timerRef.current = setInterval(fetchRTASwing, 1000);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
+    if (next) {
+      lastHash.current = "";
+      fetchRT();
+      timerRef.current = setInterval(fetchRT, 1000);
+    } else {
+      timerRef.current && clearInterval(timerRef.current);
       timerRef.current = null;
+      abortRef.current?.abort();
+      setSwing(null);
     }
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRealtime, uid]);
+  };
 
-  /* ============== UI ============== */
+  /* --- cleanup on unmount --- */
+  useEffect(() => {
+    return () => {
+      timerRef.current && clearInterval(timerRef.current);
+      abortRef.current?.abort();
+    };
+  }, []);
+
+  /* ----------------------------- JSX ----------------------------- */
   return (
     <div className="flex flex-col h-screen bg-[#080d16] text-gray-100">
       <Header />
 
-      {/* ------ UID 入力 & ボタン群 ------ */}
-      <div className="px-4 py-2 bg-[#0e1524] flex flex-wrap items-center gap-2">
-        <label className="text-sm font-medium whitespace-nowrap">M‑Tracer&nbsp;ID:</label>
-
-        <input
-          value={uid}
-          onChange={(e) => setUid(e.target.value)}
-          placeholder="★ここにエムトレ ID を入力。アプリ左上メニュー → ユーザーネーム下の文字列をコピー★"
-          className="px-2 py-1 flex-1 min-w-0 rounded bg-[#1a2336] text-sm placeholder-gray-400"
-        />
-
-        <button
-          onClick={handleSingleFetch}
-          disabled={loading || !uid || isRealtime}
-          className={`px-4 py-1 rounded text-sm font-semibold ${
-            loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-500"
-          }`}
-        >
-          スイング計測開始
-        </button>
-
-        <button
-          onClick={toggleRealtime}
-          disabled={!uid}
-          className={`px-4 py-1 rounded text-sm font-semibold ${
-            isRealtime ? "bg-red-600 hover:bg-red-500" : "bg-green-600 hover:bg-green-500"
-          }`}
-        >
-          {isRealtime ? "リアルタイム停止" : "リアルタイム計測"}
-        </button>
-      </div>
-
-      {/* ------ 2 カラムメイン ------ */}
+      {/* main */}
       <main className="flex-1 h-0 px-4 pb-4 overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-full">
-          {/* === 左 : 3D 弾道 === */}
+          {/* left: 3D */}
           <section className="lg:col-span-5 h-full">
             <div className="relative w-full h-full overflow-hidden rounded-lg bg-black">
               <Canvas camera={{ fov: 40, near: 0.1, far: 1500 }} shadows>
@@ -169,14 +160,14 @@ export default function RTAPage() {
                 <ambientLight intensity={0.6} />
                 <directionalLight position={[50, 80, -30]} intensity={1} castShadow />
 
-                <group position={[0, -15, 0]} rotation={[+Math.PI / 36, 0, 0]}>
+                <group position={[0, -15, 0]} rotation={[Math.PI / 36, 0, 0]}>
                   <Background width={240} height={120} z={270} />
                   <FairwayGround width={200} depth={300} offsetZ={30} y={-0.5} />
                   <FairwayGuide width={200} depth={300} interval={25} y={0.01} />
 
                   {swing && (
                     <TrajectoryWithBall
-                      key={`${swing.estimateCarry}-${swing.impactFaceAngle}-${swing.impactAttackAngle}`}
+                      key={hash(swing)}
                       estimateCarry={swing.estimateCarry}
                       impactAttackAngle={swing.impactAttackAngle}
                       impactFaceAngle={swing.impactFaceAngle}
@@ -192,23 +183,57 @@ export default function RTAPage() {
             </div>
           </section>
 
-          {/* === 右 : 指標 & 図解 === */}
-          <section className="lg:col-span-7 flex flex-col gap-3 overflow-y-auto">
+          {/* right: panels */}
+          <section className="lg:col-span-7 flex flex-col gap-2 overflow-y-auto">
+            {/* ===== 追加：ID + ボタン 2 段レイアウト ===== */}
+{/* ===== ID + ボタン：横 1 行レイアウト ===== */}
+<div className="bg-[#0e1524] rounded-lg p-3 flex items-center gap-2">
+  {/* ラベル */}
+  <label className="text-lg font-nomal whitespace-nowrap shrink-0">
+    M-Tracer ID:
+  </label>
+
+  {/* 入力ボックス */}
+  <input
+    value={uid}
+    onChange={(e) => setUid(e.target.value)}
+    placeholder="M-Tracerアプリプロフィールに表示されるIDを入力"
+    className="flex-1 min-w-0 px-3 py-1 rounded bg-[#1a2336] border border-zinc-700 text-sm placeholder-gray-400"
+  />
+
+  {/* ボタン */}
+  <button
+    onClick={toggleRealtime}
+    disabled={!uid}
+    className={`shrink-0 px-4 py-2 rounded-3xl text-white font-semibold shadow-md transition
+      ${
+        !uid
+          ? "bg-gray-500 cursor-not-allowed"
+          : realtime
+          ? "bg-gradient-to-r from-red-900 to-red-500 hover:from-red-700 hover:to-red-400"
+          : "bg-gradient-to-r from-green-900 to-green-500 hover:from-green-700 hover:to-green-400"
+      }`}
+  >
+    {realtime ? "リアルタイム計測終了" : "リアルタイム計測開始"}
+  </button>
+</div>
+
+            {/* ===== コンテンツ領域 ===== */}
             {swing ? (
               <>
-                <MeasureStartBox swing={swing} headSpeed={headSpeed} />
+                <MeasureStartBox swing={swing} headSpeed={head} />
                 <SummaryPanels
                   clubType={swing.clubType}
                   faceAngle={swing.impactFaceAngle}
-                  attackAngle={swing.impactLoftAngle}
+                  attackAngle={swing.impactAttackAngle}
                   pointX={swing.impactPointX}
                   pointY={swing.impactPointY}
-                  advice={null}
+                  advice={advice}
                 />
               </>
             ) : (
               <div className="flex-1 rounded-lg bg-[#101624] flex items-center justify-center text-gray-500 text-sm">
-                エムトレ ID を入力して「スイング計測開始」または「リアルタイム計測」を押してください
+                M-Tracer ID を入力し「リアルタイム開始」を押してください
               </div>
             )}
           </section>
@@ -217,3 +242,4 @@ export default function RTAPage() {
     </div>
   );
 }
+// -----------------------------------------------------------------------------

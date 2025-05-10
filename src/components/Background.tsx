@@ -13,7 +13,7 @@ import * as THREE from "three";
  *   z      - カメラからの奥行き（デフォ 120 = 前方）
  */
 export default function Background({
-  width = 450,
+  width = 600,
   height = 300,
   z = 120,
 }: {
