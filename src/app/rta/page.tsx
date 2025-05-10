@@ -225,7 +225,7 @@ export default function RTAPage() {
                 <SummaryPanels
                   clubType={swing.clubType}
                   faceAngle={swing.impactFaceAngle}
-                  attackAngle={swing.impactAttackAngle}
+                  loftAngle={swing.impactLoftAngle} 
                   pointX={swing.impactPointX}
                   pointY={swing.impactPointY}
                   advice={advice}
