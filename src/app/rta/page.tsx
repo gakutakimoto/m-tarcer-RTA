@@ -90,7 +90,7 @@ export default function RTAPage() {
     abortRef.current = new AbortController();
     try {
       const res = await fetch(
-        `/api/rta-swing?uid=${encodeURIComponent(uid)}`,
+        `/api/rta-swing?uid=${encodeURIComponent(uid)}&days=30`,
         { cache: "no-store", signal: abortRef.current.signal }
       );
       if (!res.ok) throw new Error();
