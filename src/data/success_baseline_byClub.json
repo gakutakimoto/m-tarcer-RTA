@@ -1,0 +1,18 @@
+{
+  "D": {
+    "halfwaydownFaceAngleToVertical": 6.839,
+    "LieDelta": 0.616,
+    "HandFirstDeg": -5.043,
+    "SRDelta": 931.829,
+    "ClosureAngle": 1.496,
+    "impactFaceAngle": 2.33
+  },
+  "I": {
+    "halfwaydownFaceAngleToVertical": -15.778,
+    "LieDelta": 0.52,
+    "HandFirstDeg": -8.448,
+    "SRDelta": 890.122,
+    "ClosureAngle": 12.328,
+    "impactFaceAngle": 1.531
+  }
+}

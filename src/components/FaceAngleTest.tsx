@@ -15,7 +15,7 @@ export default function FaceAngleTest() {
       </h4>
 
       {/* 画像ボックス：固定 1:1 */}
-      <div className="relative w-full pt-[100%]">
+      <div className="relative w-full aspect-square">
         {/* 分度器：静止 */}
         <Image
           src={bgSrc}

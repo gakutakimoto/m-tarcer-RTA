@@ -1,11 +1,12 @@
 // -----------------------------------------------------------------------------
-// components/MeasureStartBox.tsx   ― 主要指標 4×2 グリッド
+// components/MeasureStartBox.tsx
+//   センサー取得値 4×2 グリッド  ─ 半透明オーバーレイ版
 // -----------------------------------------------------------------------------
 "use client";
 
 import React from "react";
 
-/* ======= props 型 ======= */
+/* ---------- props 型 ---------- */
 type SwingLike = {
   estimateCarry: number;
   impactHeadSpeed?: number | null;
@@ -15,7 +16,7 @@ type SwingLike = {
   impactClubPath: number;
   impactRelativeFaceAngle: number | null;
   impactPointX: number | null;
-  impactPointY: number | null;   // ← ★ 追加（Y 値）
+  impactPointY: number | null;
 };
 
 interface Props {
@@ -23,7 +24,7 @@ interface Props {
   headSpeed: number | null;
 }
 
-/* ======= 本体 ======= */
+/* ---------- 本体 ---------- */
 export default function MeasureStartBox({ swing, headSpeed }: Props) {
   const metrics = [
     { label: "推定飛距離", value: swing.estimateCarry, unit: "yd" },
@@ -33,16 +34,22 @@ export default function MeasureStartBox({ swing, headSpeed }: Props) {
     { label: "ロフト角", value: swing.impactLoftAngle, unit: "°" },
     { label: "クラブパス", value: swing.impactClubPath, unit: "°" },
     { label: "フェーストゥパス", value: swing.impactRelativeFaceAngle, unit: "°" },
-    // ★ ここを impactPointY に変更
-    { label: "ミート点(縦/中心比較)", value: swing.impactPointY, unit: "cm" },
+    { label: "ミート点(縦)", value: swing.impactPointY, unit: "cm" },
   ];
 
   return (
-    <div className="w-full rounded-lg bg-[#101624] p-1">
-      <h4 className="text-xs font-bold text-gray-300 mb-2">センサー取得数値</h4>
+    <div
+      className="
+        absolute top-20 left-1/2 -translate-x-1/2 z-30
+        px-2 py-2 rounded-lg
+        bg-[#0e1524]/45 backdrop-blur-sm      /* ← 背景だけ 60% 透過 */
+        text-white                         /* 数字は不透明 */
+        w-[min(70vw,440px)]
+      "
+    >
 
-      {/* min-w-0 で余計な横はみ出しを防止 */}
-      <div className="grid grid-cols-4 gap-x-4 gap-y-1">
+
+      <div className="grid grid-cols-4 gap-x-4 gap-y-3">
         {metrics.map((m) => (
           <Metric key={m.label} {...m} />
         ))}
@@ -51,7 +58,7 @@ export default function MeasureStartBox({ swing, headSpeed }: Props) {
   );
 }
 
-/* ======= 1 セル：ラベル上 / 値下 ======= */
+/* ---------- 1 セル ---------- */
 function Metric({
   label,
   value,
@@ -68,15 +75,11 @@ function Metric({
 
   return (
     <div className="min-w-0 flex flex-col items-center text-center">
-      {/* ラベル */}
-      <span className="text-sm font-bold text-gray-300 truncate">{label}</span>
+      <span className="text-[11px] font-bold text-white leading-none truncate">{label}</span>
 
-      {/* 値＋単位 */}
-      <span className="text-4xl font-nomal text-white whitespace-nowrap">
+      <span className="text-4xl font-nomal whitespace-nowrap leading-none mt-1">
         {txt}
-        {unit && (
-          <span className="text-xl ml-0.5 whitespace-nowrap">{unit}</span>
-        )}
+        {unit && <span className="text-base ml-0.5">{unit}</span>}
       </span>
     </div>
   );

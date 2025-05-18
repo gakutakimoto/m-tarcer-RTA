@@ -1,0 +1,32 @@
+{
+  "halfwaybackFaceAngleToVertical": {
+    "mu80": -30.644,
+    "mu50": -27.175,
+    "sigma": 27.648
+  },
+  "halfwaydownFaceAngleToVertical": {
+    "mu80": -15.778,
+    "mu50": -5.934,
+    "sigma": 19.836
+  },
+  "impactHandFirst": {
+    "mu80": -8.448,
+    "mu50": -11.314,
+    "sigma": 11.109
+  },
+  "LieDelta": {
+    "mu80": 0.52,
+    "mu50": 1.553,
+    "sigma": 5.12
+  },
+  "SRDelta": {
+    "mu80": 890.122,
+    "mu50": 930.544,
+    "sigma": 472.836
+  },
+  "ClosureAngle": {
+    "mu80": 12.328,
+    "mu50": -8.951,
+    "sigma": 55.183
+  }
+}

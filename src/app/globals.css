@@ -39,3 +39,8 @@ body {
     padding-right: 0.5rem; /* モバイルで少し狭める */
   }
 }
+
+/* くっきり 1 px の影。お好みで色・ぼかし量を調整してください */
+.text-shadow {
+  text-shadow: 0 1px 2px rgba(0,0,0,.7);
+}
