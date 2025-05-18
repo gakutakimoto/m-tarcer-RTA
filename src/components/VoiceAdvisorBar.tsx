@@ -61,7 +61,7 @@ export default function VoiceAdvisorBar({
         </span>
 
         {/* ---------- JP / EN トグル ---------- */}
-        <div className="inline-flex rounded-md bg-[#0f1625] p-0.5">
+        <div className="inline-flex rounded-lg bg-[#0f1625] p-0.5">
           {(["jp", "en"] as const).map((l) => {
             const active = lang === l;
             return (
@@ -69,7 +69,7 @@ export default function VoiceAdvisorBar({
                 key={l}
                 onClick={() => onLangChange(l)}
                 className={`
-                  px-3 py-0.5 text-xs font-semibold rounded-md transition-colors
+                  px-3 py-0.5 text-xs font-semibold rounded-lg transition-colors
                   ${active
                     ? "text-white bg-gradient-to-r from-purple-700 to-pink-600"
                     : "text-gray-300 hover:bg-gray-600"}

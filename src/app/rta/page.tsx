@@ -180,39 +180,35 @@ export default function RTAPage() {
   }, [cluster]);
 
 /* ---- TTS 発話（simple / zeroFace / success）------------- */
+// ここから ↓ を丸ごと置き換え
+const lastSpeechRef = useRef<string>("");   // 同じ音声を重複再生させないためのガード
+
 useEffect(() => {
-  if (!swing) return;          // スイングが無ければ終了
+  if (!swing || !voiceMode) return;         // スイングが無い／OFF のときは何もしない
+
+  // 「どのモードで」「どのスイングを」読んだかをハッシュ化
+  const hash = `${voiceMode}:${swingHash(swing)}`;
+  if (hash === lastSpeechRef.current) return;     // すでに読んでいればスキップ
+  lastSpeechRef.current = hash;                  // 今回の読み上げを記録
 
   switch (voiceMode) {
-    /* ① 結果報告 */
-    case "simple":
-      speak("simple", {
-        swingResult: swing,
-        lang,
-      }).catch(console.error);
+    case "simple":      // ① 結果報告
+      speak("simple",   { swingResult: swing, lang }).catch(console.error);
       break;
 
-    /* ② FaceAngle Guide */
-    case "zeroFace":
-      speak("zero-face", {
-        swingResult: swing,
-        lang,
-      }).catch(console.error);
+    case "zeroFace":    // ② FaceAngle Guide
+      speak("zero-face",{ swingResult: swing, lang }).catch(console.error);
       break;
 
-    /* ③ Total AI Advice */
-    case "success":
-      speak("success", {
-        swingResult: swing,
-        clusterId:   cluster,   // ← 成功モデル参照に必要
-        lang,
-      }).catch(console.error);
+    case "success":     // ③ Total AI Advice
+      speak("success",  { swingResult: swing, lang }).catch(console.error);
       break;
 
     default:
       break;
   }
-}, [swing, voiceMode, lang, cluster]);
+}, [swing, voiceMode, lang]);
+// ここまで ↑
 
 
 
