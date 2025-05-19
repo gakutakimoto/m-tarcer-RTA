@@ -180,6 +180,38 @@ export default function RTASpPage() {
     <div className="flex flex-col min-h-screen bg-[#080d16] text-gray-100">
       <Header/>
 
+ {/* === UID 入力バー ─ ヘッダー直下に sticky で固定 === */}
+ <div
+   className="sticky top-[56px] z-30   /* Header 高さ分だけ下げる */
+   flex items-center justify-center bg-[#080d16] px-2 py-3"
+ >
+   <div className="flex gap-2 w-full max-w-[430px]">
+     <input
+       value={uid}
+       onChange={(e) => setUid(e.target.value)}
+       placeholder="input Your M-Tracer ID"
+       className="
+         flex-1 h-8 px-3 rounded-md bg-white/10
+         text-sm placeholder:text-gray-300"
+     />
+     <button
+      onClick={toggleRealtime}
+       disabled={!uid}
+      className={`
+         h-8 px-4 rounded-md text-sm font-semibold shadow-md transition
+         ${!uid
+           ? "bg-gray-500 cursor-not-allowed"
+           : realtime
+            ? "bg-rose-500 hover:bg-rose-600"
+             : "bg-green-600 hover:bg-green-500"}`}
+     >
+       {realtime ? "リアルタイム計測停止" : "リアルタイム計測開始"}
+     </button>
+  </div>
+ </div>
+ {/* === /UID 入力バー === */}
+
+
       <main className="flex-1 h-0 px-2 pb-4 overflow-auto lg:overflow-hidden">
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-2">
 
@@ -187,29 +219,6 @@ export default function RTASpPage() {
           <section className="lg:col-span-5">
             <div className="relative w-full h-[60vh] lg:h-full overflow-hidden rounded-lg bg-black">
 
-              {/* --- UID 入力バー --- */}
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20
-                              flex gap-2 w-[450px] max-w-[90vw] pl-3 pr-1 py-0 rounded-md">
-                <input
-                  value={uid}
-                  onChange={e=>setUid(e.target.value)}
-                  placeholder="input Your M-Tracer ID"
-                  className="flex-1 h-7 px-3 rounded-md bg-[#0e1524]/40
-                             text-sm placeholder:text-gray-300"
-                />
-                <button
-                  onClick={toggleRealtime}
-                  disabled={!uid}
-                  className={`h-6 px-4 rounded-md text-sm font-semibold shadow-md transition
-                    ${!uid
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : realtime
-                        ? "bg-rose-500 hover:bg-rose-600"
-                        : "bg-green-600 hover:bg-green-500"}`}
-                >
-                  {realtime ? "リアルタイム計測停止" : "リアルタイム計測開始"}
-                </button>
-              </div>
 
               {/* --- 数値カード (SP) --- */}
               {swing && <MeasureStartBoxSp swing={swing} headSpeed={head}/>}
@@ -275,7 +284,7 @@ export default function RTASpPage() {
                 </>
               ):(
                 <div className="flex-1 rounded-lg bg-[#101624] flex items-center justify-center text-sm">
-                  上のフォームに M-Tracer ID を入力して「開始」を押してください
+                  上のフォームに M-TracerIDを入力後「計測開始」
                 </div>
               )}
             </div>
